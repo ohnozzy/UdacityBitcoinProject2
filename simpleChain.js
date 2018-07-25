@@ -4,25 +4,11 @@
 "use strict";
 const SHA256 = require('crypto-js/sha256');
 const level = require('level');
+const Block = require('./Block');
 
 
 
-/* ===== Block Class ==============================
-|  Class with a constructor for block 			   |
-|  ===============================================*/
 
-class Block{
-	constructor(data){
-     this.hash = "",
-     this.height = 0,
-     this.body = data,
-     this.time = 0,
-     this.previousBlockHash = ""
-    }
-    toString(){
-       return JSON.stringify(this);
-    }
-}
 
 /* ===== Blockchain Class ==========================
 |  Class with a constructor for new blockchain 		|
@@ -35,13 +21,18 @@ class Blockchain{
     
   }
   //initialize leveldb. 
-  initdb(){
-    var block = new Block("First block in the chain - Genesis block");
-    block.height = 0;
-    block.time = new Date().getTime().toString().slice(0,-3);
-    block.hash = SHA256(JSON.stringify(block)).toString();
+  async initdb(){
+    try {
+       var height = await this.getBlockHeight();
+       return height;
+    } catch(e) {
+        var block = new Block("First block in the chain - Genesis block");
+        block.height = 0;
+        block.time = new Date().getTime().toString().slice(0,-3);
+        block.hash = SHA256(JSON.stringify(block)).toString();    
+        return this.db.batch().put('height',1).put(0, JSON.stringify(block)).write().then(function(){return 1;});
+    }
     
-    return this.db.batch().put('height',1).put(0, JSON.stringify(block)).write().then(function(){return true;}, function(err){return false});
   }
 
   // Add new block
@@ -123,8 +114,8 @@ class Blockchain{
     }
 }
 
-module.exports.Block=Block;
-module.exports.Blockchain=Blockchain;
+
+module.exports=exports=Blockchain;
 
 
 

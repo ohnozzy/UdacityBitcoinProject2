@@ -1,15 +1,16 @@
-const simpleChain = require('./simpleChain.js');
+const Blockchain = require('./simpleChain.js')
+const Block = require('./Block.js')
 const chainDB = './chaindata';
-var blockchain = new simpleChain.Blockchain(chainDB);
+var blockchain = new Blockchain(chainDB);
 blockchain.initdb()
 .then(function(){return blockchain.getBlockHeight()})
 .then(function(height){return blockchain.validateBlock(height-1)})
 .then(function(value){console.log(value)})
-.then(function(){return blockchain.addBlock(new simpleChain.Block('1st'))})
+.then(function(){return blockchain.addBlock(new Block('1st'))})
 .then(function(value){console.log(value)})
 .then(function(){return blockchain.getBlock(1)})
 .then(function(value){console.log(value)})
-.then(function(){return blockchain.addBlock(new simpleChain.Block('2nd'))})
+.then(function(){return blockchain.addBlock(new Block('2nd'))})
 .then(function(){return blockchain.validateChain()})
 .then(function(value){console.log(value)})
 .then(function(){return blockchain.getBlockHeight()})
