@@ -24,36 +24,30 @@ class Blockchain{
   async initdb(){
     try {
        var height = await this.getBlockHeight();
-       this.height = height;
+       
+       this.lastblock = await this.getBlock(height);
+       
        
     } catch(e) {
-        var block = new Block("First block in the chain - Genesis block");
-        block.height = 0;
-        block.time = new Date().getTime().toString().slice(0,-3);
-        block.hash = SHA256(JSON.stringify(block)).toString();    
-        await this.db.batch().put('height',0).put(0, JSON.stringify(block)).write();
-        this.height =0 ;
+        this.lastblock = new Block("First block in the chain - Genesis block");
+        this.lastblock.height = 0;
+        this.lastblock.time = new Date().getTime().toString().slice(0,-3);
+        this.lastblock.hash = SHA256(JSON.stringify(this.lastblock)).toString();    
+        await this.db.batch().put('height',0).put(0, JSON.stringify(this.lastblock)).write();
+        
     }
-    return this.height;
+    return this.lastblock;
     
   }
 
   // Add new block height -1 indicate failure.
   async addBlock(newBlock){
-    let preblocknumber = this.height; 
-    this.height++;
-    newBlock.height = this.height;
-    while(true){
-    try{
-    let block = await this.getBlock(preblocknumber);
-    newBlock.previousBlockHash = block.hash;
+    if(this.lastblock){
+    newBlock.height = this.lastblock.height+1;
+    newBlock.previousBlockHash = this.lastblock.hash;
     newBlock.time = new Date().getTime().toString().slice(0,-3);
     newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-    break;
-    }catch(e){
-      continue;
-    }
-    }
+    this.lastblock = newBlock;
     
     try{
     await this.db.batch().put('height', newBlock.height).put(newBlock.height, JSON.stringify(newBlock)).write();
@@ -61,6 +55,10 @@ class Blockchain{
       throw 1;
     }
     return newBlock;
+    }else{
+      console.log('Not initiated');
+      throw 2
+    }
   }
 
   // Get block height
