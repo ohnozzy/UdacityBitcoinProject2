@@ -11,15 +11,23 @@ RESTful API for manipulating blockchain data. This is just a course project, ple
 ## RESTful End Points
 
 ### Retrieve Block Data
-* request
+
+* Request
+
   GET http://localhost:8000/block/{BLOCK_HEIGHT}
-* response 
+
+* Response
+
   {"hash":"hash string","height": height,"body":"data string","time":"time string","previousBlockHash":"previsou block hash string"}
 
 ### Append Blockchain
-* request
+
+* Request
+
   POST http://localhost:8000/block
   Content-Type: application/json
   Request body: {"body":"data"}
+
 * reponse
+
   {"hash":"hash string","height": height,"body":"data string","time":"time string","previousBlockHash":"previsou block hash string"}
