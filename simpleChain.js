@@ -35,7 +35,7 @@ class Blockchain{
     
   }
 
-  // Add new block
+  // Add new block height -1 indicate failure.
   async addBlock(newBlock){
     
     var chain = this;
@@ -45,8 +45,11 @@ class Blockchain{
     newBlock.previousBlockHash = block.hash;
     newBlock.time = new Date().getTime().toString().slice(0,-3);
     newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-    return this.db.batch().put('height', +newBlock.height+1).put(newBlock.height, JSON.stringify(newBlock)).write().then(function(){return true;}, function(err){return false});
-    
+    var result = await this.db.batch().put('height', +newBlock.height+1).put(newBlock.height, JSON.stringify(newBlock)).write().then(function(){return true;}, function(err){return false});
+    if(!result){
+      newBlock.height=-1;
+    }
+    return newBlock;
   }
 
   // Get block height
@@ -57,7 +60,7 @@ class Blockchain{
     // get block
     getBlock(blockHeight){
       // return object as a single string
-      return this.db.get(blockHeight).then(function(blockstr){return JSON.parse(blockstr)}, function(err){console.log(err)});
+      return this.db.get(blockHeight).then(function(blockstr){return JSON.parse(blockstr)}, function(err){console.log(err); return Promise.reject(1)});
      
     }
 
