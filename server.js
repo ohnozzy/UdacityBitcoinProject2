@@ -12,6 +12,6 @@ app.get('/block/:height(\\d+)', function (req, res) {
   });
 app.post('/block', function (req, res) {
     
-    blockchain.addBlock(new Block(req.body.body)).then((block)=>res.json(block), (err)=>res.status(500).end());
+    blockchain.addBlock(new Block(req.body.body)).then((block)=>res.json(block), (err)=>{if(err===1){res.status(500).end()}else{res.status(409).end()}});
 });
 app.listen(8000, () => blockchain.initdb());

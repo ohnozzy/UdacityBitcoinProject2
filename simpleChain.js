@@ -24,43 +24,57 @@ class Blockchain{
   async initdb(){
     try {
        var height = await this.getBlockHeight();
-       return height;
+       this.height = height;
+       
     } catch(e) {
         var block = new Block("First block in the chain - Genesis block");
         block.height = 0;
         block.time = new Date().getTime().toString().slice(0,-3);
         block.hash = SHA256(JSON.stringify(block)).toString();    
-        return this.db.batch().put('height',1).put(0, JSON.stringify(block)).write().then(function(){return 1;});
+        await this.db.batch().put('height',0).put(0, JSON.stringify(block)).write();
+        this.height =0 ;
     }
+    return this.height;
     
   }
 
   // Add new block height -1 indicate failure.
   async addBlock(newBlock){
-    
-    var chain = this;
-    var height = await this.getBlockHeight();
-    var block = await this.getBlock(height -1);
-    newBlock.height = height;
+    let preblocknumber = this.height; 
+    this.height++;
+    newBlock.height = this.height;
+    while(true){
+    try{
+    let block = await this.getBlock(preblocknumber);
     newBlock.previousBlockHash = block.hash;
     newBlock.time = new Date().getTime().toString().slice(0,-3);
     newBlock.hash = SHA256(JSON.stringify(newBlock)).toString();
-    var result = await this.db.batch().put('height', +newBlock.height+1).put(newBlock.height, JSON.stringify(newBlock)).write().then(function(){return true;}, function(err){return false});
-    if(!result){
-      newBlock.height=-1;
+    break;
+    }catch(e){
+      continue;
+    }
+    }
+    
+    try{
+    await this.db.batch().put('height', newBlock.height).put(newBlock.height, JSON.stringify(newBlock)).write();
+    }catch(e){
+      throw 1;
     }
     return newBlock;
   }
 
   // Get block height
-    getBlockHeight(){
-      return this.db.get('height');
+    async getBlockHeight(){
+      var height = await this.db.get('height');
+      return height;
     }
 
     // get block
-    getBlock(blockHeight){
+    async getBlock(blockHeight){
       // return object as a single string
-      return this.db.get(blockHeight).then(function(blockstr){return JSON.parse(blockstr)}, function(err){console.log(err); return Promise.reject(1)});
+
+      var blockstr = await this.db.get(blockHeight);
+      return JSON.parse(blockstr);
      
     }
 
