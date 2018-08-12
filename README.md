@@ -11,9 +11,9 @@ RESTful API for manipulating blockchain data. This is just a course project, ple
 
 ## Install Dependent Packages
 
-`npm install level`
-`npm install crypto-js`
-`npm install express`
+* `npm install level`
+* `npm install crypto-js`
+* `npm install express`
 
 
 ## Running the Server
