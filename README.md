@@ -7,6 +7,21 @@ RESTful API for manipulating blockchain data. This is just a course project, ple
 * nodejs 
 * leveldb
 * expressjs
+* crypto-js
+
+## Install Dependent Packages
+
+`npm install level`
+`npm install crypto-js`
+`npm install express`
+
+
+## Running the Server
+
+`node server.js`
+
+The server listens on port 8000 by default.
+
 
 ## RESTful End Points
 
