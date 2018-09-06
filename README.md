@@ -25,7 +25,7 @@ The server listens on port 8000 by default.
 
 ## RESTful End Points
 
-### Retrieve Block Data By Height
+### Retrieve Block Data with Height
 
 * Request
 
@@ -38,8 +38,8 @@ The server listens on port 8000 by default.
    "body":{
      "address": "Wallet Address",
      "star": {
-      "ra": "ra",
-      "dec": "dec",
+      "ra": "Right Ascension",
+      "dec": "Declination",
       "story": "story string in hex format",
       "storyDecoded": "story string"
      }
@@ -52,9 +52,34 @@ The server listens on port 8000 by default.
 * Request
 
   POST http://localhost:8000/block
+  
   Content-Type: application/json
-  Request body: {"body":"data"}
+  
+  Request body:
+  ```
+  {
+  "address": "Wallet Address",
+  "star": {
+    "dec": "Right Ascension",
+    "ra": "Declination",
+    "story": "story string"
+  }
+  ```
 
 * reponse
 
-  {"hash":"hash string","height": height,"body":"data string","time":"time string","previousBlockHash":"previsou block hash string"}
+```
+  {"hash":"hash string",
+   "height": height,
+   "body":{
+     "address": "Wallet Address",
+     "star": {
+      "ra": "Right Ascension",
+      "dec": "Declination",
+      "story": "story string in hex format",
+      "storyDecoded": "story string"
+     }
+   },
+   "time":"time string",
+   "previousBlockHash":"previsou block hash string"}
+```
