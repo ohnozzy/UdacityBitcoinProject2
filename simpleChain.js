@@ -50,7 +50,11 @@ class Blockchain{
     this.lastblock = newBlock;
     
     try{
-    await this.db.batch().put('height', newBlock.height).put(newBlock.height, JSON.stringify(newBlock)).write();
+    await this.db.batch().put('height', newBlock.height)
+          .put('height.'+newBlock.height, JSON.stringify(newBlock))
+          .put('hash.'+newBlock.hash,JSON.stringify(newBlock))
+          .put('address.'+newBlock.body.address+'.'+newBlock.hash, newBlock.hash) 
+          .write();
     }catch(e){
       throw 1;
     }
@@ -71,9 +75,32 @@ class Blockchain{
     async getBlock(blockHeight){
       // return object as a single string
 
-      var blockstr = await this.db.get(blockHeight);
+      var blockstr = await this.db.get('height.'+blockHeight);
       return JSON.parse(blockstr);
      
+    }
+    async getBlockHash(hash){
+      var blockstr = await this.db.get('hash.'+hash);
+      return JSON.parse(blockstr);
+    }
+    async getBlockByAddress(address, cb){
+          var hasharray=[];
+          var chain = this;
+          this.db.createValueStream({gt: 'address.'+address+'.',lt: 'address.'+address+'0'})
+          .on('data', function (data) {
+              console.log(data)
+              hasharray.push(data)
+          })
+          .on('end', async function(){
+              var result=[];
+              console.log(hasharray)
+              for (const hash of hasharray){
+                  var blockdata = await chain.getBlockHash(hash);
+                  result.push(blockdata);
+              }
+              cb(result);
+             }
+          )
     }
 
 
