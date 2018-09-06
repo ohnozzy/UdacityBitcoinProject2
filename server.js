@@ -10,23 +10,24 @@ var blockchain = new Blockchain(chainDB);
 var reqisterUsers={};
 app.use(bodyParser.json());
 const validWindows = 300;
+const wordLimit = 250;
 function postProcessBlock(block){
   block.body.star.storyDecoded = Buffer.from(block.body.star.story, 'hex').toString('utf8');
   return block;
 }
 function checkTimeout(session){
-  return session.requestTimeStamp+session.validationWindow > Math.round(new Date().getTime() / 1000)
+  return session.requestTimeStamp + validWindows > Math.round(new Date().getTime() / 1000)
 }
 app.get('/block/:height(\\d+)', function (req, res) {
     blockchain.getBlock(req.params.height).then((block)=>res.json(postProcessBlock(block)), (err)=>res.status(404).end());
     
   });
-app.get('/block/hash::hash', function (req, res) {
+app.get('/stars/hash::hash', function (req, res) {
     console.log(req.params);
     blockchain.getBlockHash(req.params.hash).then((block)=>res.json(postProcessBlock(block)), (err)=>res.status(404).end());
     
   });
-app.get('/block/address::address', async function (req, res) {
+app.get('/stars/address::address', async function (req, res) {
     console.log(req.params);
     blockchain.getBlockByAddress(req.params.address, function(result){
       for (let data of result){
@@ -39,13 +40,14 @@ app.get('/block/address::address', async function (req, res) {
 
 app.post('/block', function (req, res) {
     
-    message = req.body
+    var message = req.body
     console.log(message);
     if(reqisterUsers[message.address]){
      let userinfo = reqisterUsers[message.address];
-     if(userinfo.validate == 'valid' && checkTimeout(userinfo)){
-      message.star.story = Buffer.from(message.star.story, 'utf8').toString('hex');
+     if(userinfo.validate == 'valid' && checkTimeout(userinfo) && message.star.story.length<wordLimit){
+      message.star.story = Buffer.from(message.star.story, 'utf8').toString('hex'); 
       blockchain.addBlock(new Block(message)).then((block)=>res.json(block), (err)=>{if(err===1){res.status(500).end()}else{res.status(409).end()}});
+      delete reqisterUsers[message.address];
      }else{
       res.json('Your wallet address is not verified or has been timeout.')
      }
@@ -55,13 +57,14 @@ app.post('/block', function (req, res) {
 });
 app.post('/message-signature/validate', function(req, res){
     let result = {};
-    result.registerStar = true;
+    result.registerStar = false;
     console.log(req.body);
     regiterInfo = reqisterUsers[req.body.address];  
     if(regiterInfo){
       result.status = regiterInfo;
       if (checkTimeout(regiterInfo)){
          if(bitcoinMessage.verify(regiterInfo.message, req.body.address, req.body.signature)){
+           result.registerStar = true;
            result.status.validate = 'valid';
          }else{
            result.status.validate = 'invalid';
@@ -78,11 +81,9 @@ app.post('/requestValidation', function(req, res){
   let d = Math.round(new Date().getTime() / 1000);
   if (reqisterUsers[req.body.address]){
      let userRegistry = reqisterUsers[req.body.address];
-     let originalendtime = userRegistry.requestTimeStamp + userRegistry.validationWindow
-     if(originalendtime > d){
-       userRegistry.requestTimeStamp = d;
-       userRegistry.message = req.body.address+":"+d+":starRegistry";
-       userRegistry.validationWindow = originalendtime - d;
+     let expiredtime = userRegistry.requestTimeStamp + validWindows
+     if(expiredtime > d){
+       userRegistry.validationWindow = expiredtime - d;
        res.json(userRegistry);
        return;
      }
