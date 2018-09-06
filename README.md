@@ -49,7 +49,7 @@ The server listens on port 8000 by default.
      }
    },
    "time":"time string",
-   "previousBlockHash":"previsou block hash string"}
+   "previousBlockHash":"previous block hash string"}
 ```
 
 ### Retrieve Block Data with Hash
@@ -72,7 +72,7 @@ The server listens on port 8000 by default.
      }
    },
    "time":"time string",
-   "previousBlockHash":"previsou block hash string"}
+   "previousBlockHash":"previous block hash string"}
 ```
 ### Retrieve Block Data with Wallet Address
 
@@ -94,7 +94,7 @@ The server listens on port 8000 by default.
      }
    },
    "time":"time string",
-   "previousBlockHash":"previsou block hash string"},
+   "previousBlockHash":"previous block hash string"},
    {"hash":"hash string",
    "height": height,
    "body":{
@@ -107,7 +107,7 @@ The server listens on port 8000 by default.
      }
    },
    "time":"time string",
-   "previousBlockHash":"previsou block hash string"}
+   "previousBlockHash":"previous block hash string"}
    ]
 ```
 ### Append Blockchain
@@ -144,7 +144,7 @@ The server listens on port 8000 by default.
      }
    },
    "time":"time string",
-   "previousBlockHash":"previsou block hash string"}
+   "previousBlockHash":"previous block hash string"}
 ```
 
 ### Validate Wallet Address
