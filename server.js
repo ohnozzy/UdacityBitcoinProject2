@@ -14,6 +14,9 @@ function postProcessBlock(block){
   block.body.star.storyDecoded = Buffer.from(block.body.star.story, 'hex').toString('utf8');
   return block;
 }
+function checkTimeout(session){
+  return session.requestTimeStamp+session.validationWindow > Math.round(new Date().getTime() / 1000)
+}
 app.get('/block/:height(\\d+)', function (req, res) {
     blockchain.getBlock(req.params.height).then((block)=>res.json(postProcessBlock(block)), (err)=>res.status(404).end());
     
@@ -38,8 +41,17 @@ app.post('/block', function (req, res) {
     
     message = req.body
     console.log(message);
-    message.star.story = Buffer.from(message.star.story, 'utf8').toString('hex');
-    blockchain.addBlock(new Block(message)).then((block)=>res.json(block), (err)=>{if(err===1){res.status(500).end()}else{res.status(409).end()}});
+    if(reqisterUsers[message.address]){
+     let userinfo = reqisterUsers[message.address];
+     if(userinfo.validate == 'valid' && checkTimeout(userinfo)){
+      message.star.story = Buffer.from(message.star.story, 'utf8').toString('hex');
+      blockchain.addBlock(new Block(message)).then((block)=>res.json(block), (err)=>{if(err===1){res.status(500).end()}else{res.status(409).end()}});
+     }else{
+      res.json('Your wallet address is not verified or has been timeout.')
+     }
+    }else{
+     res.json('Your wallet address is not registered')
+    }
 });
 app.post('/message-signature/validate', function(req, res){
     let result = {};
@@ -48,7 +60,7 @@ app.post('/message-signature/validate', function(req, res){
     regiterInfo = reqisterUsers[req.body.address];  
     if(regiterInfo){
       result.status = regiterInfo;
-      if (result.status.requestTimeStamp+result.status.validationWindow > Math.round(new Date().getTime() / 1000)){
+      if (checkTimeout(regiterInfo)){
          if(bitcoinMessage.verify(regiterInfo.message, req.body.address, req.body.signature)){
            result.status.validate = 'valid';
          }else{

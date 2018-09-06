@@ -47,6 +47,65 @@ The server listens on port 8000 by default.
    "time":"time string",
    "previousBlockHash":"previsou block hash string"}
 ```
+
+### Retrieve Block Data with Hash
+
+* Request
+
+  GET http://localhost:8000/block/hash:{HASH}
+
+* Response
+```
+  {"hash":"hash string",
+   "height": height,
+   "body":{
+     "address": "Wallet Address",
+     "star": {
+      "ra": "Right Ascension",
+      "dec": "Declination",
+      "story": "story string in hex format",
+      "storyDecoded": "story string"
+     }
+   },
+   "time":"time string",
+   "previousBlockHash":"previsou block hash string"}
+```
+### Retrieve Block Data with Wallet Address
+
+* Request
+
+  GET http://localhost:8000/block/address:{Address}
+
+* Response 
+```
+  [{"hash":"hash string",
+   "height": height,
+   "body":{
+     "address": "Wallet Address",
+     "star": {
+      "ra": "Right Ascension",
+      "dec": "Declination",
+      "story": "story string in hex format",
+      "storyDecoded": "story string"
+     }
+   },
+   "time":"time string",
+   "previousBlockHash":"previsou block hash string"},
+   {"hash":"hash string",
+   "height": height,
+   "body":{
+     "address": "Wallet Address",
+     "star": {
+      "ra": "Right Ascension",
+      "dec": "Declination",
+      "story": "story string in hex format",
+      "storyDecoded": "story string"
+     }
+   },
+   "time":"time string",
+   "previousBlockHash":"previsou block hash string"}
+   ]
+```
 ### Append Blockchain
 
 * Request
@@ -82,4 +141,64 @@ The server listens on port 8000 by default.
    },
    "time":"time string",
    "previousBlockHash":"previsou block hash string"}
+```
+
+### Validate Wallet Address
+
+* Request
+
+  POST http://localhost:8000/requestValidation
+  
+  Content-Type: application/json
+  
+  Request body:
+  ```
+  {
+  "address": "Wallet Address",
+  }
+  ```
+
+* reponse
+
+```
+  {
+  "address": "Wallet Address",
+  "requestTimeStamp": "current time in seconds since epoch",
+  "message": "challenge message",
+  "validationWindow": time window in seconds
+ } 
+
+```
+
+### Validate Message Signature
+
+* Request
+
+  POST http://localhost:8000/message-signature/validate
+  
+  Content-Type: application/json
+  
+  Request body:
+  ```
+  {
+  "address": "Wallet Address",
+  "signature": "signature of the message returned from '/requestValidation'"
+  }
+  ```
+
+* reponse
+
+```
+{
+  "registerStar": true,
+  "status": 
+  {
+  "address": "Wallet Address",
+  "requestTimeStamp": "current time in seconds since epoch",
+  "message": "challenge message",
+  "validationWindow": time window in seconds
+  "messageSignature": "valid/invalid"
+  }
+}
+
 ```
