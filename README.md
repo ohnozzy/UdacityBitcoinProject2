@@ -25,16 +25,28 @@ The server listens on port 8000 by default.
 
 ## RESTful End Points
 
-### Retrieve Block Data
+### Retrieve Block Data By Height
 
 * Request
 
   GET http://localhost:8000/block/{BLOCK_HEIGHT}
 
 * Response
-
-  {"hash":"hash string","height": height,"body":"data string","time":"time string","previousBlockHash":"previsou block hash string"}
-
+```
+  {"hash":"hash string",
+   "height": height,
+   "body":{
+     "address": "Wallet Address",
+     "star": {
+      "ra": "ra",
+      "dec": "dec",
+      "story": "story string in hex format",
+      "storyDecoded": "story string"
+     }
+   },
+   "time":"time string",
+   "previousBlockHash":"previsou block hash string"}
+```
 ### Append Blockchain
 
 * Request
